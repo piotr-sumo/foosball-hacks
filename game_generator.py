@@ -56,7 +56,6 @@ class GameGenerator:
                  pickup_interval_max_ms,
                  red_score,
                  blue_score):
-
         self.red_button = red_button
         self.blue_button = blue_button
 
@@ -102,4 +101,4 @@ class GameGenerator:
             game_event.fire()
 
     def start(self):
-        Thread(target=self.play, args=(self,), daemon=True)
+        Thread(target=self.play, daemon=True).start()
