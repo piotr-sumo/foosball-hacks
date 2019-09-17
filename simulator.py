@@ -3,12 +3,13 @@ from random import randint, choice
 from threading import Thread
 import gpiozero
 import gpiozero.pins.mock
-from sensors import Sensors
+from sensors import Sensors, SensorListener
 
 from game_generator import GameGenerator
+from state import State
 
 
-class MyExampleListener:
+class PrintingListener(SensorListener):
 
     def enter_red_ball(self):
         print("enter_red_ball")
@@ -29,13 +30,28 @@ class MyExampleListener:
         print("still_blue_ball")
 
 
+class StateSimulatorListener(PrintingListener):
+    def __init__(self, state):
+        self.state = state
+
+    def enter_red_ball(self):
+        super().enter_red_ball()
+        self.state.red_scores()
+
+    def enter_blue_ball(self):
+        super().enter_blue_ball()
+        self.state.blue_scores()
+
+
 if __name__ == "__main__":
+    state = State()
     gpiozero.Device.pin_factory = gpiozero.pins.mock.MockFactory()
     s = Sensors()
     gg = GameGenerator(s.goal_box_red_button, s.goal_box_blue_button, 6000, 6000, 10000, 1300, 2000, 3, 3)
-    listener = MyExampleListener()
+    listener = StateSimulatorListener(state)
     s.attach(listener)
     gg.start()
 
-    sleep(1000000)
-
+    sleep(12)
+    print("Game score", state.get_current_score())
+    print("Simulation has ended")

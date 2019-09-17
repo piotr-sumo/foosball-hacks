@@ -13,6 +13,27 @@ STILL_TIMEOUT = 60
 SLEEP_TIME = 1 / 500
 
 
+class SensorListener:
+    # Interface for listener
+    def enter_red_ball(self):
+        raise NotImplementedError
+
+    def enter_blue_ball(self):
+        raise NotImplementedError
+
+    def exit_red_ball(self):
+        raise NotImplementedError
+
+    def exit_blue_ball(self):
+        raise NotImplementedError
+
+    def still_red_ball(self):
+        raise NotImplementedError
+
+    def still_blue_ball(self):
+        raise NotImplementedError
+
+
 class Sensors:
     def __init__(self):
         self.goal_box_red_button = Button(PIN_RED_BUTTON)
