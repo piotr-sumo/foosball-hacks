@@ -12,6 +12,7 @@ STILL_TIMEOUT = 60
 
 SLEEP_TIME = 1 / 500
 
+
 class Sensors:
     def __init__(self):
         self.goal_box_red_button = Button(PIN_RED_BUTTON)
@@ -36,43 +37,43 @@ class Sensors:
 
     def poll_loop(self):
         while True:
-            if (self.present_ball_red and 
-                self.goal_box_red_button.value == 0 and
-                self.since_last_time_red() > EXIT_TIMEOUT):
+            if (self.present_ball_red and
+                    self.goal_box_red_button.value == 0 and
+                    self.since_last_time_red() > EXIT_TIMEOUT):
                 self.present_ball_red = False
                 self.last_time_red = time.time()
                 self.exit_red_ball()
 
             elif (not self.present_ball_red and
-                self.goal_box_red_button.value == 1 and
-                self.since_last_time_red() > ENTER_TIMEOUT):
+                  self.goal_box_red_button.value == 1 and
+                  self.since_last_time_red() > ENTER_TIMEOUT):
                 self.present_ball_red = True
                 self.last_time_red = time.time()
                 self.enter_red_ball()
 
-            elif (self.present_ball_red and 
-                self.goal_box_red_button.value == 1 and
-                self.since_last_time_red() > STILL_TIMEOUT):
+            elif (self.present_ball_red and
+                  self.goal_box_red_button.value == 1 and
+                  self.since_last_time_red() > STILL_TIMEOUT):
                 self.last_time_red = time.time()
                 self.still_red_ball()
 
-            if (self.present_ball_blue and 
-                self.goal_box_blue_button.value == 0 and
-                self.since_last_time_blue() > EXIT_TIMEOUT):
+            if (self.present_ball_blue and
+                    self.goal_box_blue_button.value == 0 and
+                    self.since_last_time_blue() > EXIT_TIMEOUT):
                 self.present_ball_blue = False
                 self.last_time_blue = time.time()
                 self.exit_blue_ball()
 
             elif (not self.present_ball_blue and
-                self.goal_box_blue_button.value == 1 and
-                self.since_last_time_blue() > ENTER_TIMEOUT):
+                  self.goal_box_blue_button.value == 1 and
+                  self.since_last_time_blue() > ENTER_TIMEOUT):
                 self.present_ball_blue = True
                 self.last_time_blue = time.time()
                 self.enter_blue_ball()
 
-            elif (self.present_ball_blue and 
-                self.goal_box_blue_button.value == 1 and
-                self.since_last_time_blue() > STILL_TIMEOUT):
+            elif (self.present_ball_blue and
+                  self.goal_box_blue_button.value == 1 and
+                  self.since_last_time_blue() > STILL_TIMEOUT):
                 self.last_time_blue = time.time()
                 self.still_blue_ball()
 
@@ -104,7 +105,6 @@ class Sensors:
         for listener in self.listeners:
             listener.exit_blue_ball()
 
-    def still_blue_ball(self):
+    def still_red_ball(self):
         for listener in self.listeners:
             listener.still_blue_ball()
-

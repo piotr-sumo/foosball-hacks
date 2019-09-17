@@ -33,8 +33,8 @@ if __name__ == "__main__":
     gpiozero.Device.pin_factory = gpiozero.pins.mock.MockFactory()
     s = Sensors()
     gg = GameGenerator(s.goal_box_red_button, s.goal_box_blue_button, 6000, 6000, 10000, 1300, 2000, 3, 3)
-    l = MyExampleListener()
-    s.attach(l)
+    listener = MyExampleListener()
+    s.attach(listener)
     gg.start()
 
     sleep(1000000)

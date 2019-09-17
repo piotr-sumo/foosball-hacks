@@ -44,7 +44,7 @@ class GameScore:
 class Event:
     def __init__(self, happened_at):
         self.happened_at = happened_at
-    
+
     def kind(self):
         raise NotImplementedError()
 
@@ -67,11 +67,12 @@ class RedGoal(Event):
 
 
 class BlueGoal(Event):
-    def __init__(self, happened_at):    
+    def __init__(self, happened_at):
         super().__init__(happened_at)
-    
+
     def kind(self):
         return "Blue goal"
+
 
 class State:
     def __init__(self, listeners=[]):
@@ -157,4 +158,3 @@ if __name__ == "__main__":
     print("Correctly counts red goals on empty state:", s.get_red_goals() == 0)
     print("Correctly counts blue goals on empty state:", s.get_blue_goals() == 0)
     print("Done")
-

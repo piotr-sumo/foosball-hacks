@@ -2,14 +2,17 @@ from time import sleep
 from random import randint, choice
 from threading import Thread
 
-#Device.pin_factory = MockFactory()
 
-class GameEvent():
+# Device.pin_factory = MockFactory()
+
+
+class GameEvent:
     def __init__(self, description):
         self.description = description
 
     def fire(self):
         print(self.description)
+
 
 class BallPickupEvent(GameEvent):
     def __init__(self, button):
@@ -20,6 +23,7 @@ class BallPickupEvent(GameEvent):
         self.button.pin.drive_high()
         super().fire()
 
+
 class BallDropEvent(GameEvent):
     def __init__(self, button):
         super().__init__(f'Ball dropped in {button.pin}')
@@ -28,6 +32,7 @@ class BallDropEvent(GameEvent):
     def fire(self):
         self.button.pin.drive_low()
         super().fire()
+
 
 class WaitEvent(GameEvent):
     def __init__(self, sleep_ms):
@@ -39,18 +44,18 @@ class WaitEvent(GameEvent):
         sleep(self.sleep_ms / 1000)
 
 
-class GameGenerator():
+class GameGenerator:
     # crate buttons with pin_factory=gpiozer.pins.mock.MockFactory()
     def __init__(self,
-        red_button,
-        blue_button,
-        start_wait_ms,
-        goal_interval_min_ms,
-        goal_interval_max_ms,
-        pickup_interval_min_ms,
-        pickup_interval_max_ms,
-        red_score,
-        blue_score):
+                 red_button,
+                 blue_button,
+                 start_wait_ms,
+                 goal_interval_min_ms,
+                 goal_interval_max_ms,
+                 pickup_interval_min_ms,
+                 pickup_interval_max_ms,
+                 red_score,
+                 blue_score):
 
         self.red_button = red_button
         self.blue_button = blue_button
