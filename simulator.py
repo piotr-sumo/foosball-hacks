@@ -2,6 +2,7 @@ from time import sleep
 import gpiozero.pins.mock
 from sensors import Sensors, SensorListener
 from sounds import ScoresStateListener
+import sched
 
 from game_generator import GameGenerator
 from state import State
@@ -31,6 +32,7 @@ class PrintingListener(SensorListener):
 TIMED_GAME_MODE = "TIMED"
 MAX_SCORE_GAME_MODE = "SCORE"
 MAX_GOALS = 10
+GAME_LENGTH = 16 * 60  # 16 minutes
 
 
 class WaitingForNewGameStateListener(PrintingListener):
@@ -47,12 +49,31 @@ class WaitingForNewGameStateListener(PrintingListener):
 
     def start_new_game(self):
         self.parent_listener.state.reset()
-        if self.parent_listener.game_mode == TIMED_GAME_MODE:
-            print("Implement me! start timer")
         self.parent_listener.game_started()
 
 
-class GameInProgressStateListener(PrintingListener):
+class TimeProgressStateListener(PrintingListener):
+    def __init__(self, parent_listener):
+        self.parent_listener = parent_listener
+        s = sched.scheduler()
+        s.enter(GAME_LENGTH, 1, self.game_has_ended)
+
+    def game_has_ended(self):
+        print("Timer has fired, game has ended")
+        current_score = self.parent_listener.state.get_current_score()
+        print("Game has ended", current_score)
+        self.parent_listener.game_has_ended()
+
+    def enter_blue_ball(self):
+        print("enter_blue_ball GameInProgressStateListener")
+        self.parent_listener.state.blue_scores()
+
+    def enter_red_ball(self):
+        print("enter_red_ball GameInProgressStateListener")
+        self.parent_listener.state.blue_scores()
+
+
+class ScoreGameInProgressStateListener(PrintingListener):
     def __init__(self, parent_listener):
         self.parent_listener = parent_listener
 
@@ -94,7 +115,6 @@ class MasterStateListener(SensorListener):
 
     def enter_red_ball(self):
         self.current_listener.enter_red_ball()
-        # self.state.red_scores()
 
     def enter_blue_ball(self):
         self.current_listener.enter_blue_ball()
@@ -113,10 +133,15 @@ class MasterStateListener(SensorListener):
 
     def game_started(self):
         print("Game started")
-        self.current_listener = GameInProgressStateListener(self)
+        if self.game_mode == TIMED_GAME_MODE:
+            self.current_listener = TimeProgressStateListener(self)
+        elif self.game_mode == MAX_SCORE_GAME_MODE:
+            self.current_listener = ScoreGameInProgressStateListener(self)
+        else:
+            raise Exception("Unknown game mode %s" % self.game_mode)
 
     def game_has_ended(self):
-        print("Game over")
+        print("Game over", self.state.get_current_score())
         self.current_listener = WaitingForNewGameStateListener(self)
 
 
