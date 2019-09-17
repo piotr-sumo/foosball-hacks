@@ -1,7 +1,4 @@
 from time import sleep
-from random import randint, choice
-from threading import Thread
-import gpiozero
 import gpiozero.pins.mock
 from sensors import Sensors, SensorListener
 from sounds import ScoresStateListener
@@ -43,6 +40,7 @@ class StateSimulatorListener(PrintingListener):
         super().enter_blue_ball()
         self.state.blue_scores()
 
+
 if __name__ == "__main__":
     state = State()
     gpiozero.Device.pin_factory = gpiozero.pins.mock.MockFactory()
@@ -54,6 +52,6 @@ if __name__ == "__main__":
     state.attach(sounds_listener)
     gg.start()
 
-    sleep(12)
+    sleep(30)
     print("Game score", state.get_current_score())
     print("Simulation has ended")
