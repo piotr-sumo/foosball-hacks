@@ -85,6 +85,12 @@ class State:
         self.event_log = []
         self.started_at = datetime.now()
 
+    def attach(self, listener):
+        self.listeners.append(listener)
+
+    def detach(self, listener):
+        self.listeners.remove(listener)
+
     def __str__(self):
         return f"State: red goals {self.red_goals}; blue goals {self.blue_goals}; started at {self.started_at}"
 
@@ -125,7 +131,6 @@ class State:
 
     def get_current_score(self):
         return GameScore(self.red_goals, self.blue_goals)
-
 
 def create_sumo_listener():
     import json
