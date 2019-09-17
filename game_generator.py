@@ -56,7 +56,6 @@ class GameGenerator:
                  pickup_interval_max_ms,
                  red_score,
                  blue_score):
-        print("Running simulation")
         self.red_button = red_button
         self.blue_button = blue_button
 
@@ -92,17 +91,14 @@ class GameGenerator:
             ]
             if should_pickup:
                 self.game_log += [BallPickupEvent(next_button)]
-        print("Simulation completed", len(self.game_log), "items in game log")
 
     def play(self):
-        print("Let's play")
         self.blue_button.pin.drive_high()
         self.red_button.pin.drive_high()
 
         self.start_button.pin.drive_low()
-        print("Game log contains", len(self.game_log), "items")
         for game_event in self.game_log:
             game_event.fire()
 
     def start(self):
-        Thread(target=self.play, args=(self,), daemon=True)
+        Thread(target=self.play, daemon=True).start()
