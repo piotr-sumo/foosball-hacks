@@ -1,8 +1,6 @@
 from sensors import SensorListener, PrintingListener
 import sched
 
-from state import State
-
 TIMED_GAME_MODE = "TIMED"
 MAX_SCORE_GAME_MODE = "SCORE"
 MAX_GOALS = 10
@@ -18,7 +16,7 @@ class WaitingForNewGameStateListener(PrintingListener):
         self.start_new_game()
 
     def exit_red_ball(self):
-        print("exit_blue_ball WaitingForNewGameStateListener")
+        print("exit_red_ball WaitingForNewGameStateListener")
         self.start_new_game()
 
     def start_new_game(self):
@@ -26,7 +24,7 @@ class WaitingForNewGameStateListener(PrintingListener):
         self.parent_listener.game_started()
 
 
-class TimeProgressStateListener(PrintingListener):
+class TimeBasedGameInProgressStateListener(PrintingListener):
     def __init__(self, parent_listener):
         self.parent_listener = parent_listener
         s = sched.scheduler()
@@ -39,34 +37,34 @@ class TimeProgressStateListener(PrintingListener):
         self.parent_listener.game_has_ended()
 
     def enter_blue_ball(self):
-        print("enter_blue_ball GameInProgressStateListener")
+        print("enter_blue_ball TimeBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
 
     def enter_red_ball(self):
-        print("enter_red_ball GameInProgressStateListener")
+        print("enter_red_ball TimeBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
 
 
-class ScoreGameInProgressStateListener(PrintingListener):
+class ScoreBasedGameInProgressStateListener(PrintingListener):
     def __init__(self, parent_listener):
         self.parent_listener = parent_listener
 
     def enter_blue_ball(self):
-        print("enter_blue_ball GameInProgressStateListener")
+        print("enter_blue_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
         self.check_game_progress()
 
     def enter_red_ball(self):
-        print("enter_red_ball GameInProgressStateListener")
+        print("enter_red_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
         self.check_game_progress()
 
     def still_red_ball(self):
-        print("still_red_ball GameInProgressStateListener")
+        print("still_red_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.game_has_ended()
 
     def still_blue_ball(self):
-        print("still_blue_ball GameInProgressStateListener")
+        print("still_blue_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.game_has_ended()
 
     def game_has_ended(self, team):
@@ -79,6 +77,11 @@ class ScoreGameInProgressStateListener(PrintingListener):
             self.game_has_ended("Red")
         elif current_score.get_blue_goals() == MAX_GOALS:
             self.game_has_ended("Blue")
+
+
+class UnknownGameModeException(Exception):
+    def __init__(self, unknown_mode):
+        super().__init__("Unknown game mode %s" % unknown_mode)
 
 
 class MasterStateListener(SensorListener):
@@ -108,11 +111,11 @@ class MasterStateListener(SensorListener):
     def game_started(self):
         print("Game started")
         if self.game_mode == TIMED_GAME_MODE:
-            self.current_listener = TimeProgressStateListener(self)
+            self.current_listener = TimeBasedGameInProgressStateListener(self)
         elif self.game_mode == MAX_SCORE_GAME_MODE:
-            self.current_listener = ScoreGameInProgressStateListener(self)
+            self.current_listener = ScoreBasedGameInProgressStateListener(self)
         else:
-            raise Exception("Unknown game mode %s" % self.game_mode)
+            raise UnknownGameModeException(self.game_mode)
 
     def game_has_ended(self):
         print("Game over", self.state.get_current_score())
