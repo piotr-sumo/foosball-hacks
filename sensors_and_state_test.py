@@ -1,7 +1,8 @@
 from unittest import main, TestCase
 from unittest.mock import Mock
-from sensors_and_state import MasterStateListener, UnknownGameModeException, ScoreBasedGameInProgressStateListener
-
+from sensors_and_state import MasterStateListener, UnknownGameModeException, ScoreBasedGameInProgressStateListener, \
+    MAX_GOALS
+from state import State
 
 class SensorsAndStateTest(TestCase):
 
@@ -59,6 +60,30 @@ class ScoreBasedGameInProgressStateListenerTest(TestCase):
 
         # when
         listener.still_red_ball()
+
+        # then
+        self.assertTrue(parent.game_has_ended.call_count == 1)
+
+    def test_should_call_parent_when_blue_wins(self):
+        # given
+        parent, listener = self.create_listener()
+        parent.state = State()
+
+        # when
+        for _ in range(MAX_GOALS):
+            listener.enter_blue_ball()
+
+        # then
+        self.assertTrue(parent.game_has_ended.call_count == 1)
+
+    def test_should_call_parent_when_red_wins(self):
+        # given
+        parent, listener = self.create_listener()
+        parent.state = State()
+
+        # when
+        for _ in range(MAX_GOALS):
+            listener.enter_red_ball()
 
         # then
         self.assertTrue(parent.game_has_ended.call_count == 1)
