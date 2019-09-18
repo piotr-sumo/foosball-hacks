@@ -56,7 +56,7 @@ class ScoreBasedGameInProgressStateListener(PrintingListener):
 
     def enter_red_ball(self):
         print("enter_red_ball ScoreBasedGameInProgressStateListener")
-        self.parent_listener.state.blue_scores()
+        self.parent_listener.state.red_scores()
         self.check_game_progress()
 
     def still_red_ball(self):
@@ -87,6 +87,8 @@ class UnknownGameModeException(Exception):
 class MasterStateListener(SensorListener):
     def __init__(self, state, game_mode):
         self.state = state
+        if game_mode not in [TIMED_GAME_MODE, MAX_SCORE_GAME_MODE]:
+            raise UnknownGameModeException(game_mode)
         self.game_mode = game_mode
         self.current_listener = WaitingForNewGameStateListener(self)
 
@@ -110,12 +112,10 @@ class MasterStateListener(SensorListener):
 
     def game_started(self):
         print("Game started")
-        if self.game_mode == TIMED_GAME_MODE:
-            self.current_listener = TimeBasedGameInProgressStateListener(self)
-        elif self.game_mode == MAX_SCORE_GAME_MODE:
+        if self.game_mode == MAX_SCORE_GAME_MODE:
             self.current_listener = ScoreBasedGameInProgressStateListener(self)
-        else:
-            raise UnknownGameModeException(self.game_mode)
+        elif self.game_mode == TIMED_GAME_MODE:
+            self.current_listener = TimeBasedGameInProgressStateListener(self)
 
     def game_has_ended(self):
         print("Game over", self.state.get_current_score())
