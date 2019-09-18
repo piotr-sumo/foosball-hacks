@@ -12,9 +12,11 @@ BUFFER_SEC = 20
 class ContinousCamera:
     def __init__(self):
         self.camera = picamera.PiCamera(framerate=FRAMERATE, resolution=RESOLUTION)
+        self.camera.rotation = 180
         self.stream = picamera.PiCameraCircularIO(self.camera, seconds=BUFFER_SEC, bitrate=BITRATE)
-        self.camera.start_recording(self.stream, format='h264', bitrate=BITRATE)
-    
+        self.camera.start_recording(self.stream, format='h264', bitrate=BITRATE, level="4.2")
+
     def dump_to_file(self, filename):
+        time.sleep(5)
         self.stream.copy_to(f"{filename}.h264", seconds=BUFFER_SEC)
 

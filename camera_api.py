@@ -15,3 +15,5 @@ def save_recording():
     os.system(f"./camera_process.sh {filename} &")
 
     return filename
+
+app.run(host="0.0.0.0", port="8080")
