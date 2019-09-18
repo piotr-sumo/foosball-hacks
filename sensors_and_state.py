@@ -1,5 +1,6 @@
 from sensors import SensorListener, PrintingListener
 import sched
+from threading import Thread
 
 TIMED_GAME_MODE = "TIMED"
 MAX_SCORE_GAME_MODE = "SCORE"
@@ -27,14 +28,20 @@ class WaitingForNewGameStateListener(PrintingListener):
 class TimeBasedGameInProgressStateListener(PrintingListener):
     def __init__(self, parent_listener):
         self.parent_listener = parent_listener
+        self.thread = Thread(target=self.thread_main, daemon=True)
+        self.game_in_progress = True
+
+    def thread_main(self):
         s = sched.scheduler()
         s.enter(GAME_LENGTH, 1, self.game_has_ended)
+        s.run()
 
     def game_has_ended(self):
-        print("Timer has fired, game has ended")
-        current_score = self.parent_listener.state.get_current_score()
-        print("Game has ended", current_score)
-        self.parent_listener.game_has_ended()
+        if self.game_in_progress:
+            print("Timer has fired, game has ended")
+            current_score = self.parent_listener.state.get_current_score()
+            print("Game has ended", current_score)
+            self.parent_listener.game_has_ended()
 
     def enter_blue_ball(self):
         print("enter_blue_ball TimeBasedGameInProgressStateListener")
@@ -43,6 +50,16 @@ class TimeBasedGameInProgressStateListener(PrintingListener):
     def enter_red_ball(self):
         print("enter_red_ball TimeBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
+
+    def still_blue_ball(self):
+        print("still_blue_ball TimeBasedGameInProgressStateListener")
+        self.game_in_progress = False
+        self.parent_listener.game_has_ended()
+
+    def still_red_ball(self):
+        print("still_red_ball TimeBasedGameInProgressStateListener")
+        self.game_in_progress = False
+        self.parent_listener.game_has_ended()
 
 
 class ScoreBasedGameInProgressStateListener(PrintingListener):
