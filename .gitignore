@@ -7,3 +7,5 @@ ENV/
 env.bak/
 venv.bak/
 slack_token.txt
+.idea
+__pycache__

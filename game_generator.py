@@ -101,4 +101,6 @@ class GameGenerator:
             game_event.fire()
 
     def start(self):
-        Thread(target=self.play, daemon=True).start()
+        t = Thread(target=self.play, daemon=False)
+        t.start()
+        return t

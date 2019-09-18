@@ -4,6 +4,7 @@ from state import StateListener, RedGoal, BlueGoal
 
 SCORES_DIR = "./voices"
 
+
 class ScoreSounds:
 
     def play_game_start(self):
@@ -38,6 +39,7 @@ class ScoresStateListener(StateListener):
         if isinstance(event, RedGoal) or isinstance(event, BlueGoal):
              self.score_sounds.play_score(self.state.get_red_goals(), 
                 self.state.get_blue_goals())
+
 
 if __name__ == "__main__":
     scores = ScoreSounds()

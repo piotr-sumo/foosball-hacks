@@ -34,6 +34,27 @@ class SensorListener:
         raise NotImplementedError
 
 
+class PrintingListener(SensorListener):
+
+    def enter_red_ball(self):
+        print("enter_red_ball", type(self))
+
+    def enter_blue_ball(self):
+        print("enter_blue_ball", type(self))
+
+    def exit_red_ball(self):
+        print("exit_red_ball", type(self))
+
+    def exit_blue_ball(self):
+        print("exit_blue_ball", type(self))
+
+    def still_red_ball(self):
+        print("still_red_ball", type(self))
+
+    def still_blue_ball(self):
+        print("still_blue_ball", type(self))
+
+
 class Sensors:
     def __init__(self):
         self.goal_box_red_button = Button(PIN_RED_BUTTON)

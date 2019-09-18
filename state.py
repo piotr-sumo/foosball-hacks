@@ -132,10 +132,11 @@ class State:
     def get_current_score(self):
         return GameScore(self.red_goals, self.blue_goals)
 
+
 def create_sumo_listener():
     import json
     try:
-        with open("config.json1") as config_file:
+        with open("config.json") as config_file:
             config = json.load(config_file)
         return SumoStateListener(config["metadata"]["log_source_url"])
     except FileNotFoundError:
