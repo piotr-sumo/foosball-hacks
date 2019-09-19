@@ -7,9 +7,9 @@ rm -f $1.h264
 
 ffmpeg \
   -i $1.mp4 \
-  -r 5 \
+  -r 10 \
   -ss 00:00:25 \
-  -to 00:00:33 \
+  -to 00:00:30 \
   -filter:v "scale=512:-1, setpts=2*PTS" \
   $1.nonoptimized.gif
 
