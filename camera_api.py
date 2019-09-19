@@ -1,11 +1,11 @@
 from flask import Flask, escape, request
-from camera import ContinousCamera
+from camera import ContinuousCamera
 import os
 import secrets
 
 app = Flask(__name__)
 
-camera = ContinousCamera()
+camera = ContinuousCamera()
 
 @app.route("/save_recording")
 def save_recording():
@@ -15,5 +15,6 @@ def save_recording():
     os.system(f"./camera_process.sh {filename} &")
 
     return filename
+
 
 app.run(host="0.0.0.0", port="8080")
