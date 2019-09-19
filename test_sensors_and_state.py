@@ -1,12 +1,14 @@
 from unittest import main, TestCase
 from unittest.mock import Mock
 from sensors_and_state import MasterStateListener, UnknownGameModeException, ScoreBasedGameInProgressStateListener, \
-    TimeBasedGameInProgressStateListener
+    TimeBasedGameInProgressStateListener, MAX_SCORE_GAME_MODE, WaitingForNewGameStateListener
 from state import State
 from time import sleep
 
 
 class SensorsAndStateTest(TestCase):
+
+    max_goals = 3
 
     def test_should_fail_on_unknown_mode(self):
         # given
@@ -16,6 +18,33 @@ class SensorsAndStateTest(TestCase):
         # expect
         with self.assertRaises(UnknownGameModeException):
             MasterStateListener(state, unknown_mode)
+
+    def test_should_wait_for_new_game_when_previous_game_ends(self):
+        # given
+        state = State()
+        master = MasterStateListener(state, MAX_SCORE_GAME_MODE, self.max_goals)
+        master.exit_red_ball()
+
+        # when
+        self.assertTrue(isinstance(master.current_listener, ScoreBasedGameInProgressStateListener))
+        for _ in range(self.max_goals):
+            master.enter_red_ball()
+
+        # then
+        self.assertTrue(isinstance(master.current_listener, WaitingForNewGameStateListener))
+
+    def test_should_wait_for_new_game_when_players_stopped_playing(self):
+        # given
+        state = Mock()
+        master = MasterStateListener(state, MAX_SCORE_GAME_MODE)
+        master.exit_red_ball()
+
+        # when
+        self.assertTrue(isinstance(master.current_listener, ScoreBasedGameInProgressStateListener))
+        master.still_red_ball()
+
+        # then
+        self.assertTrue(isinstance(master.current_listener, WaitingForNewGameStateListener))
 
 
 class ScoreBasedGameInProgressStateListenerTest(TestCase):
