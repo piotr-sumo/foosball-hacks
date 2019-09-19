@@ -9,7 +9,8 @@ FRAMERATE = 60
 BITRATE = 17000000
 BUFFER_SEC = 20
 
-class ContinousCamera:
+
+class ContinuousCamera:
     def __init__(self):
         self.camera = picamera.PiCamera(framerate=FRAMERATE, resolution=RESOLUTION)
         self.camera.rotation = 180
@@ -19,4 +20,3 @@ class ContinousCamera:
     def dump_to_file(self, filename):
         time.sleep(5)
         self.stream.copy_to(f"{filename}.h264", seconds=BUFFER_SEC)
-
