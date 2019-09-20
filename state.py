@@ -78,6 +78,14 @@ class BlueGoal(Event):
         return "Blue goal"
 
 
+class GameOver(Event):
+    def __init__(self, happened_at):
+        super().__init__(happened_at)
+
+    def kind(self):
+        return "Game over"
+
+
 class State:
     def __init__(self, listeners=[]):
         self.reset()
@@ -135,6 +143,11 @@ class State:
 
     def get_current_score(self):
         return GameScore(self.red_goals, self.blue_goals)
+
+    def game_over(self):
+        e = GameOver(datetime.now())
+        self.event_log.append(e)
+        self.fire_listeners(e)
 
 
 def create_sumo_listener():

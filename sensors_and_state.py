@@ -142,6 +142,7 @@ class MasterStateListener(SensorListener):
 
     def game_has_ended(self):
         logging.info("Game over %s", self.state.get_current_score())
+        self.state.game_over()
         self.current_listener = WaitingForNewGameStateListener(self)
 
     def change_game_mode(self):
