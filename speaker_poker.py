@@ -1,18 +1,18 @@
 import os
-from threading import Thread
-from time import sleep
+from threading import Thread, Event
 import argparse
 import signal
 
 
 SHOULD_RUN = True
+THREAD_WAIT_OBJ = Event()
 
 
 def signal_handler(signum, frame):
-    print("Handler fired, please wait till the player thread wakes up")
     if signum == signal.SIGINT:
         global SHOULD_RUN
         SHOULD_RUN = False
+        THREAD_WAIT_OBJ.set()
 
 
 def play_file(filename):
@@ -23,7 +23,7 @@ def player(filename, interval):
     while SHOULD_RUN:
         print("Playing and then sleeping")
         play_file(filename)
-        sleep(interval)
+        THREAD_WAIT_OBJ.wait(interval)
 
 
 if __name__ == "__main__":
@@ -39,3 +39,4 @@ if __name__ == "__main__":
     player_thread.start()
     signal.signal(signal.SIGINT, signal_handler)
     player_thread.join()
+    print("Exiting")
