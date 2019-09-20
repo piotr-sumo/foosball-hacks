@@ -2,6 +2,7 @@ from gpiozero import Button
 from time import sleep
 import time
 import threading
+import logging
 
 PIN_RED_BUTTON = 17
 PIN_BLUE_BUTTON = 27
@@ -37,22 +38,22 @@ class SensorListener:
 class PrintingListener(SensorListener):
 
     def enter_red_ball(self):
-        print("enter_red_ball", type(self))
+        logging.info("enter_red_ball %s", type(self))
 
     def enter_blue_ball(self):
-        print("enter_blue_ball", type(self))
+        logging.info("enter_blue_ball %s", type(self))
 
     def exit_red_ball(self):
-        print("exit_red_ball", type(self))
+        logging.info("exit_red_ball %s", type(self))
 
     def exit_blue_ball(self):
-        print("exit_blue_ball", type(self))
+        logging.info("exit_blue_ball %s", type(self))
 
     def still_red_ball(self):
-        print("still_red_ball", type(self))
+        logging.info("still_red_ball %s", type(self))
 
     def still_blue_ball(self):
-        print("still_blue_ball", type(self))
+        logging.info("still_blue_ball %s", type(self))
 
 
 class Sensors:

@@ -2,9 +2,13 @@ from sensors import Sensors
 from sensors_and_state import MasterStateListener, MAX_SCORE_GAME_MODE
 from sounds import ScoresStateListener
 from state import State, create_sumo_listener
+import logging
+
+logging.basicConfig(format='%(asctime)s %(name)s %(message)s', level=logging.INFO)
+logger = logging.getLogger("foosball")
 
 if __name__ == "__main__":
-    print("Starting foosball")
+    logger.info("Starting foosball")
     state = State()
     sensors = Sensors()
 
@@ -16,7 +20,7 @@ if __name__ == "__main__":
     if sumo_listener is not None:
         state.attach(sumo_listener)
     else:
-        print("Unable to create sumo listener")
+        logger.info("Unable to create sumo listener")
 
     # let daemon threads keep the process alive
-    print("Setup done")
+    logger.info("Setup done")
