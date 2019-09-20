@@ -9,6 +9,7 @@ SHOULD_RUN = True
 
 
 def signal_handler(signum, frame):
+    print("Handler fired, please wait till the player thread wakes up")
     if signum == signal.SIGINT:
         global SHOULD_RUN
         SHOULD_RUN = False
