@@ -139,6 +139,7 @@ class MasterStateListener(SensorListener):
             self.current_listener = ScoreBasedGameInProgressStateListener(self, self.max_score)
         elif self.game_mode == TIMED_GAME_MODE:
             self.current_listener = TimeBasedGameInProgressStateListener(self, self.max_game_length)
+        self.state.game_started()
 
     def game_has_ended(self):
         logging.info("Game over %s", self.state.get_current_score())

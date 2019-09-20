@@ -86,6 +86,14 @@ class GameOver(Event):
         return "Game over"
 
 
+class GameStarted(Event):
+    def __init__(self, happened_at):
+        super().__init__(happened_at)
+
+    def kind(self):
+        return "Game started"
+
+
 class State:
     def __init__(self, listeners=[]):
         self.reset()
@@ -146,6 +154,11 @@ class State:
 
     def game_over(self):
         e = GameOver(datetime.now())
+        self.event_log.append(e)
+        self.fire_listeners(e)
+
+    def game_started(self):
+        e = GameStarted(datetime.now())
         self.event_log.append(e)
         self.fire_listeners(e)
 
