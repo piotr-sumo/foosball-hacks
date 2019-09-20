@@ -94,6 +94,15 @@ class GameStarted(Event):
         return "Game started"
 
 
+class GoalRevoked(Event):
+    def __init__(self, happened_at, goal_revoked):
+        super().__init__(happened_at)
+        self.goal_revoked = goal_revoked
+
+    def kind(self):
+        return "%s revoked" % self.goal_revoked.kind()
+
+
 class State:
     def __init__(self, listeners=[]):
         self.reset()
@@ -161,6 +170,23 @@ class State:
         e = GameStarted(datetime.now())
         self.event_log.append(e)
         self.fire_listeners(e)
+
+    def revoke_last_goal(self):
+        if len(self.event_log) > 0:
+            last_event = self.event_log[-1]
+            if isinstance(last_event, RedGoal) or isinstance(last_event, BlueGoal):
+                e = GoalRevoked(datetime.now(), last_event)
+                if isinstance(last_event, RedGoal):
+                    logger.info("Revoking last red goal")
+                    self.red_goals -= 1
+                else:
+                    logging.info("Revoking last blue goal")
+                    self.blue_goals -= 1
+                self.event_log.append(e)
+            else:
+                logger.warning("Unable to revoke, last event is %s", last_event.kind())
+        else:
+            logger.info("Nothing to revoke")
 
 
 def create_sumo_listener():
