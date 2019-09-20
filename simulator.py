@@ -1,3 +1,5 @@
+import logging
+
 import gpiozero.pins.mock
 
 from game_generator import GameGenerator
@@ -7,6 +9,7 @@ from sounds import ScoresStateListener
 from state import State
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     state = State()
     gpiozero.Device.pin_factory = gpiozero.pins.mock.MockFactory()
     sensors = Sensors()
@@ -18,5 +21,5 @@ if __name__ == "__main__":
     game = gg.start()
     game.join()
 
-    print("Game score", state.get_current_score())
-    print("Simulation has ended")
+    logging.info("Game score %s", state.get_current_score())
+    logging.info("Simulation has ended")

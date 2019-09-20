@@ -1,6 +1,7 @@
 from sensors import SensorListener, PrintingListener
 import sched
 from threading import Thread
+import logging
 
 TIMED_GAME_MODE = "TIMED"
 MAX_SCORE_GAME_MODE = "SCORE"
@@ -13,11 +14,11 @@ class WaitingForNewGameStateListener(PrintingListener):
         self.parent_listener = parent_listener
 
     def exit_blue_ball(self):
-        print("exit_blue_ball WaitingForNewGameStateListener")
+        logging.info("exit_blue_ball WaitingForNewGameStateListener")
         self.start_new_game()
 
     def exit_red_ball(self):
-        print("exit_red_ball WaitingForNewGameStateListener")
+        logging.info("exit_red_ball WaitingForNewGameStateListener")
         self.start_new_game()
 
     def start_new_game(self):
@@ -40,26 +41,26 @@ class TimeBasedGameInProgressStateListener(PrintingListener):
 
     def game_has_ended(self):
         if self.game_in_progress:
-            print("Timer has fired, game has ended")
+            logging.info("Timer has fired, game has ended")
             current_score = self.parent_listener.state.get_current_score()
-            print("Game has ended", current_score)
+            logging.info("Game has ended %s", current_score)
             self.parent_listener.game_has_ended()
 
     def enter_blue_ball(self):
-        print("enter_blue_ball TimeBasedGameInProgressStateListener")
+        logging.info("enter_blue_ball TimeBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
 
     def enter_red_ball(self):
-        print("enter_red_ball TimeBasedGameInProgressStateListener")
+        logging.info("enter_red_ball TimeBasedGameInProgressStateListener")
         self.parent_listener.state.red_scores()
 
     def still_blue_ball(self):
-        print("still_blue_ball TimeBasedGameInProgressStateListener")
+        logging.info("still_blue_ball TimeBasedGameInProgressStateListener")
         self.game_in_progress = False
         self.parent_listener.game_has_ended()
 
     def still_red_ball(self):
-        print("still_red_ball TimeBasedGameInProgressStateListener")
+        logging.info("still_red_ball TimeBasedGameInProgressStateListener")
         self.game_in_progress = False
         self.parent_listener.game_has_ended()
 
@@ -70,25 +71,25 @@ class ScoreBasedGameInProgressStateListener(PrintingListener):
         self.max_score = max_score
 
     def enter_blue_ball(self):
-        print("enter_blue_ball ScoreBasedGameInProgressStateListener")
+        logging.info("enter_blue_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.state.blue_scores()
         self.check_game_progress()
 
     def enter_red_ball(self):
-        print("enter_red_ball ScoreBasedGameInProgressStateListener")
+        logging.info("enter_red_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.state.red_scores()
         self.check_game_progress()
 
     def still_red_ball(self):
-        print("still_red_ball ScoreBasedGameInProgressStateListener")
+        logging.info("still_red_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.game_has_ended()
 
     def still_blue_ball(self):
-        print("still_blue_ball ScoreBasedGameInProgressStateListener")
+        logging.info("still_blue_ball ScoreBasedGameInProgressStateListener")
         self.parent_listener.game_has_ended()
 
     def game_has_ended(self, team):
-        print(team, "team wins!")
+        logging.info("%s team wins!", team)
         self.parent_listener.game_has_ended()
 
     def check_game_progress(self):
@@ -133,14 +134,16 @@ class MasterStateListener(SensorListener):
         self.current_listener.exit_blue_ball()
 
     def game_started(self):
-        print("Game started")
+        logging.info("Game started")
         if self.game_mode == MAX_SCORE_GAME_MODE:
             self.current_listener = ScoreBasedGameInProgressStateListener(self, self.max_score)
         elif self.game_mode == TIMED_GAME_MODE:
             self.current_listener = TimeBasedGameInProgressStateListener(self, self.max_game_length)
+        self.state.game_started()
 
     def game_has_ended(self):
-        print("Game over", self.state.get_current_score())
+        logging.info("Game over %s", self.state.get_current_score())
+        self.state.game_over()
         self.current_listener = WaitingForNewGameStateListener(self)
 
     def change_game_mode(self):

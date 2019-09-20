@@ -1,6 +1,10 @@
 from time import sleep
 from datetime import datetime
 import requests
+import logging
+
+
+logger = logging.getLogger("state")
 
 
 class StateListener:
@@ -12,7 +16,7 @@ class StateListener:
 class LoggingStateListener(StateListener):
 
     def event_happened(self, event):
-        print("Received event:", event)
+        logger.info("Received event:", event)
 
 
 class SumoStateListener(StateListener):
@@ -23,7 +27,7 @@ class SumoStateListener(StateListener):
     def event_happened(self, event):
         msg = f"Received event: {event.description()}"
         r = requests.post(self.source_url, data=msg)
-        print("Sent request to sumo, got status", r.status_code)
+        logger.info("Sent request to sumo, got status %s", r.status_code)
 
 
 class GameScore:
@@ -74,6 +78,31 @@ class BlueGoal(Event):
         return "Blue goal"
 
 
+class GameOver(Event):
+    def __init__(self, happened_at):
+        super().__init__(happened_at)
+
+    def kind(self):
+        return "Game over"
+
+
+class GameStarted(Event):
+    def __init__(self, happened_at):
+        super().__init__(happened_at)
+
+    def kind(self):
+        return "Game started"
+
+
+class GoalRevoked(Event):
+    def __init__(self, happened_at, goal_revoked):
+        super().__init__(happened_at)
+        self.goal_revoked = goal_revoked
+
+    def kind(self):
+        return "%s revoked" % self.goal_revoked.kind()
+
+
 class State:
     def __init__(self, listeners=[]):
         self.reset()
@@ -103,7 +132,7 @@ class State:
                 l.event_happened(event)
             except Exception as e:
                 # TODO: listener name or something
-                print("Listener failed", e)
+                logger.error("Listener failed", e)
 
     def blue_scores(self):
         self.blue_goals += 1
@@ -132,6 +161,33 @@ class State:
     def get_current_score(self):
         return GameScore(self.red_goals, self.blue_goals)
 
+    def game_over(self):
+        e = GameOver(datetime.now())
+        self.event_log.append(e)
+        self.fire_listeners(e)
+
+    def game_started(self):
+        e = GameStarted(datetime.now())
+        self.event_log.append(e)
+        self.fire_listeners(e)
+
+    def revoke_last_goal(self):
+        if len(self.event_log) > 0:
+            last_event = self.event_log[-1]
+            if isinstance(last_event, RedGoal) or isinstance(last_event, BlueGoal):
+                e = GoalRevoked(datetime.now(), last_event)
+                if isinstance(last_event, RedGoal):
+                    logger.info("Revoking last red goal")
+                    self.red_goals -= 1
+                else:
+                    logging.info("Revoking last blue goal")
+                    self.blue_goals -= 1
+                self.event_log.append(e)
+            else:
+                logger.warning("Unable to revoke, last event is %s", last_event.kind())
+        else:
+            logger.info("Nothing to revoke")
+
 
 def create_sumo_listener():
     import json
@@ -144,6 +200,7 @@ def create_sumo_listener():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     sumo_listener_opt = create_sumo_listener()
     if sumo_listener_opt is None:
         s = State()
@@ -152,15 +209,15 @@ if __name__ == "__main__":
     s.red_scores()
     sleep(2)
     s.blue_scores()
-    print("Show state:", s)
-    print("Show events:", ', '.join([str(x) for x in s.get_event_log()]))
-    print("Last event timestamp:", s.last_event_timestamp())
-    print("Correctly counts red goals:", s.get_red_goals() == 1)
-    print("Correctly counts blue goals:", s.get_blue_goals() == 1)
-    print("Current score", s.get_current_score())
+    logger.info("Show state: %s", s)
+    logger.info("Show events: %s", ', '.join([str(x) for x in s.get_event_log()]))
+    logger.info("Last event timestamp: %s", s.last_event_timestamp())
+    logger.info("Correctly counts red goals: %s", s.get_red_goals() == 1)
+    logger.info("Correctly counts blue goals: %s", s.get_blue_goals() == 1)
+    logger.info("Current score %s", s.get_current_score())
     # WARNING, state reset here
     s.reset()
-    print("Last event timestamp on an empty state:", s.last_event_timestamp())
-    print("Correctly counts red goals on empty state:", s.get_red_goals() == 0)
-    print("Correctly counts blue goals on empty state:", s.get_blue_goals() == 0)
-    print("Done")
+    logger.info("Last event timestamp on an empty state: %s", s.last_event_timestamp())
+    logger.info("Correctly counts red goals on empty state %s:", s.get_red_goals() == 0)
+    logger.info("Correctly counts blue goals on empty state %s:", s.get_blue_goals() == 0)
+    logger.info("Done")
